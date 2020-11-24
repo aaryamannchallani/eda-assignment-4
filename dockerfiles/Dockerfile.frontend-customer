@@ -1,0 +1,12 @@
+FROM node:12-alpine as builder
+WORKDIR /app
+
+COPY package*.json ./
+
+RUN npm run build
+
+COPY . .
+
+FROM nginx:1.9.15 as webserver
+COPY --from=builder /app /usr/share/nginx/html
+
