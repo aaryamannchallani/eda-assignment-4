@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-load-balancer-customer
+spec:
+  selector:
+    app: nginx-frontend-customer
+  ports:
+  - port: 80
+    targetPort: 8080
+  type: LoadBalancer
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-load-balancer-admin
+spec:
+  selector:
+    app: nginx-frontend-admin
+  ports:
+  - port: 80
+    targetPort: 8080
+  type: LoadBalancer

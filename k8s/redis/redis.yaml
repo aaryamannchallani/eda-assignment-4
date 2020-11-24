@@ -1,0 +1,51 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+spec:
+  ports:
+  - port: 6379
+  selector:
+    name: redis
+  clusterIP: None
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name:  redis
+  labels:
+    name:  redis
+spec:
+  serviceName: redis
+  selector:
+    name: redis
+  replicas: 3
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        name:  redis
+    spec:
+      containers:
+      - image:  redis
+        name:  redis
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort:  6379
+          name:  redis-port
+        volumeMounts:
+        - name: redis-persistent-storage
+          mountPath: /var/lib/redis
+      volumes:
+      - name: redis-persistent-storage
+        persistentVolumeClaim:
+          claimName: redis-pv-claim
+
+      restartPolicy: Always

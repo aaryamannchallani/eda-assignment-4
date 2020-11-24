@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-frontend-admin
+spec:
+  selector:
+    matchLabels:
+      app: nginx-frontend-admin
+  template:
+    metadata:
+      labels:
+        app: nginx-frontend-admin
+    replicas: 3
+    spec:
+      containers:
+      - name: nginx-frontend
+        image: gcr.io/power-project-eda/frontend-admin:latest
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "200m"
+        ports:
+        - containerPort: 8080
+          volumeMounts:
+            - mountPath: /var/secrets/google
+              name: eda-secrets
+          env:
+            - name: REDIS_HOST
+              value: redis:6379
+            - name: MYSQL_HOST
+              value: mysql:3306
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: /var/secrets/google/key.json
+      restartPolicy: Always
+      volumes:
+        - name: eda-secrets
+          secret:
+            secretName: eda-secrets

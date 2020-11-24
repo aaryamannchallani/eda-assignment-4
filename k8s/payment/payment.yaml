@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payment
+spec:
+  selector:
+    matchLabels:
+      app: payment
+  template:
+    metadata:
+      labels:
+        app: payment
+    spec:
+      containers:
+      - name: payment
+        image: gcr.io/power-project-eda/payment:latest
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+          volumeMounts:
+            - mountPath: /var/secrets/google
+              name: eda-secrets
+          env:
+            - name: REDIS_HOST
+              value: redis:6379
+            - name: MYSQL_HOST
+              value: mysql:3306
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: /var/secrets/google/key.json
+      restartPolicy: Always
+      volumes:
+        - name: eda-secrets
+          secret:
+            secretName: eda-secrets
